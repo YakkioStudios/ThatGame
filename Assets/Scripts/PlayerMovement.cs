@@ -34,7 +34,7 @@ public class PlayerMovement : MonoBehaviour {
 		float move_vertical = Input.GetAxisRaw("Vertical");
 
 		Move(move_horiz, move_vertical);
-		Turning();
+		// HandleTurning();
 	}
 
 	void Move(float h, float v) {
@@ -44,7 +44,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	}
 
-	void Turning() {
+	void HandleTurning() {
 		// Check to make sure the movement vector is nonzero so that we actually need a rotation
 		if (movement != Vector3.zero){
 			Quaternion new_rot = Quaternion.LookRotation(movement);

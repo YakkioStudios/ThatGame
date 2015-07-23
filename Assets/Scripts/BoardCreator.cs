@@ -66,7 +66,10 @@ public class BoardCreator : MonoBehaviour {
 					x_pos = x_pos + ((3/4f) * hex_width);
 				}
 
-				tile_locations.Add(new Vector3(x_pos, 0.5f, z_pos));
+				int y_pos_step = Random.Range(0, 3);
+				float y_pos = 0.5f * y_pos_step + 0.5f;
+
+				tile_locations.Add(new Vector3(x_pos, y_pos, z_pos));
 			}
 		}
 	}
