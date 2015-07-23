@@ -25,10 +25,13 @@ public class PlayerResources : MonoBehaviour {
 	void OnTriggerEnter(Collider collider) {
 		if (collider.CompareTag("Tree")) {
 			trees++;
+			collider.BroadcastMessage("ConsumeResource");
 	   	} else if (collider.CompareTag("Stone")) {
 			stones++;
+			collider.BroadcastMessage("ConsumeResource");
 	   	} else if (collider.CompareTag("Water")) {
 			water++;
+			collider.BroadcastMessage("ConsumeResource");
 	   	}
 
 		UpdateResourcesText();
