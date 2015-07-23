@@ -70,9 +70,12 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	bool ShouldJump() {
+		bool should_jump = true;
 		// See if the user wants to jump
 		bool jump_key_pressed = Input.GetKeyDown("space");
-		bool should_jump = jump_key_pressed && !is_jumping;
+
+		should_jump &= jump_key_pressed;
+		should_jump &= !is_jumping;
 
 		return should_jump;
 	}
