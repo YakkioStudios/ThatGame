@@ -10,6 +10,9 @@ public class BoardCreator : MonoBehaviour {
 	public GameObject tree_template;
 	public GameObject stone_template;
 
+	public int board_width;
+	public int board_height;
+
 	public float hex_width;
 
 	private Transform board_holder;
@@ -53,12 +56,32 @@ public class BoardCreator : MonoBehaviour {
 
 	}
 
+	void CreateTileLocationsHex() {
+		// Fill the tile locations array with all of the positions for each tile. For now this is generated in a grid fashion. Maybe it will be better to do radial-ish setup later?
+		tile_locations.Clear();
+
+	}
+
 	void CreateTileLocationsGrid() {
 		// Fill the tile locations array with all of the positions for each tile. For now this is generated in a grid fashion. Maybe it will be better to do radial-ish setup later?
 		tile_locations.Clear();
 
-		for (int x = -5; x < 5; ++x) {
-			for (int z = -10; z < 10; ++z) {
+		int board_x_min = -board_width / 2;
+		int board_x_max = board_width / 2;
+
+		if (board_width % 2 != 0) {
+			board_x_min -= 1;
+		}
+
+		int board_z_min = -board_height / 2;
+		int board_z_max = board_height / 2;
+
+		if (board_height % 2 != 0) {
+			board_z_min -= 1;
+		}
+
+		for (int x = board_x_min; x < board_x_max; ++x) {
+			for (int z = board_z_min; z < board_z_max; ++z) {
 				float x_pos = x * ((3 / 2f) * hex_width);
 
 				float z_pos = z * (hex_height / 2f) + (hex_height / 2f);
@@ -74,35 +97,17 @@ public class BoardCreator : MonoBehaviour {
 		}
 	}
 
-	void CreateTileLocationsHex() {
-		// Fill the tile locations array with all of the positions for each tile. For now this is generated in a grid fashion. Maybe it will be better to do radial-ish setup later?
-		tile_locations.Clear();
-
-		for (int x = -10; x < 10; ++x) {
-			for (int z = -10; z < 10; ++z) {
-				float x_pos = x * ((3 / 2f) * hex_width);
-
-				float z_pos = z * (hex_height / 2f) + (hex_height / 2f);
-				if (z % 2 == 0) {
-					x_pos = x_pos + ((3/4f) * hex_width);
-				}
-
-				tile_locations.Add(new Vector3(x_pos, 0.5f, z_pos));
-			}
-		}
-	}
-
 	// Eh?
 	GameObject getRandomTile() {
 		GameObject tile;
 
 		int random_num = Random.Range(0, 100);
-		if (random_num < 60) {
+		if (random_num < 80) {
 			tile = neutral_template;
-		} else if (random_num < 75) {
-			tile = water_template;
 		} else if (random_num < 90) {
 			tile = tree_template;
+		} else if (random_num < 95) {
+			tile = water_template;
 		} else {
 			tile = stone_template;
 		}

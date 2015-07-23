@@ -36,14 +36,12 @@ public class ResourceController : MonoBehaviour {
 
 	void ConsumeResource() {
 		is_consumed = true;
-		Debug.Log("consuming resource");
 		renderer.material = neutral_material;
 		gameObject.tag = "Neutral";
 	}
 
 	void ReplinishResource() {
 		is_consumed = false;
-		Debug.Log("replinished resource");
 		renderer.material = default_material;
 		gameObject.tag = default_tag;
 	}
