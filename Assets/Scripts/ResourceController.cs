@@ -8,7 +8,7 @@ public class ResourceController : MonoBehaviour {
 
 	private float time_since_consumed;
 	private bool is_consumed;
-	private Renderer renderer;
+	private Renderer this_renderer;
 	private Material default_material;
 	private string default_tag;
 
@@ -17,8 +17,8 @@ public class ResourceController : MonoBehaviour {
 		time_since_consumed = 0f;
 		is_consumed = false;
 
-		renderer = GetComponent<Renderer>();
-		default_material = renderer.material;
+		this_renderer = GetComponent<Renderer>();
+		default_material = this_renderer.material;
 		default_tag = gameObject.tag;
 	}
 
@@ -36,13 +36,13 @@ public class ResourceController : MonoBehaviour {
 
 	void ConsumeResource() {
 		is_consumed = true;
-		renderer.material = neutral_material;
+		this_renderer.material = neutral_material;
 		gameObject.tag = "Neutral";
 	}
 
 	void ReplinishResource() {
 		is_consumed = false;
-		renderer.material = default_material;
+		this_renderer.material = default_material;
 		gameObject.tag = default_tag;
 	}
 }
