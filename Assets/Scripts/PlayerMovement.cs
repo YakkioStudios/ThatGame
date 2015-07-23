@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	private Rigidbody rb;
 	private bool is_jumping;
+	private Vector3 movement;
 
 	// Use this for initialization
 	void Start () {
@@ -29,13 +30,26 @@ public class PlayerMovement : MonoBehaviour {
 
 	void HandlePlayerMovement() {
 		// Set the forces for horizontal (X) and the vertical (Y) axes.
-		float move_horiz = Input.GetAxis("Horizontal");
-		float move_vertical = Input.GetAxis("Vertical");
+		float move_horiz = Input.GetAxisRaw("Horizontal");
+		float move_vertical = Input.GetAxisRaw("Vertical");
 
-		Vector3 move_amount = new Vector3(move_horiz, 0, move_vertical);
-		move_amount = move_amount * move_speed;
+		Move(move_horiz, move_vertical);
+		Turning();
+	}
 
-		transform.Translate(move_amount * Time.deltaTime, Space.World);
+	void Move(float h, float v) {
+		movement.Set(h, 0f, v);
+		movement = movement.normalized * move_speed * Time.deltaTime;
+		rb.MovePosition(transform.position + movement);
+
+	}
+
+	void Turning() {
+		// Check to make sure the movement vector is nonzero so that we actually need a rotation
+		if (movement != Vector3.zero){
+			Quaternion new_rot = Quaternion.LookRotation(movement);
+			rb.MoveRotation(new_rot);
+		}
 	}
 
 	// Jumping force (only call from FixedUpdate)

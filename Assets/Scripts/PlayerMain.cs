@@ -17,7 +17,7 @@ public class PlayerMain : MonoBehaviour {
 		if (other.CompareTag("Killing Thing")) {
 			KillPlayer();
 		} else if (other.CompareTag("Tile")) {
-			Debug.Log("You are on a new tile: " + other.ToString());
+			Debug.Log("You are on a new tile: " + other.gameObject.name);
 		}
 	}
 
