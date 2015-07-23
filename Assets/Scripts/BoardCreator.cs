@@ -33,7 +33,7 @@ public class BoardCreator : MonoBehaviour {
 
 	void SetupBoard() {
 		// Fill the tile locations array
-		CreateTileLocations();
+		CreateTileLocationsGrid();
 
 		// Instantiate Board and set boardHolder to its transform.
 		board_holder = new GameObject("Board").transform;
@@ -53,7 +53,25 @@ public class BoardCreator : MonoBehaviour {
 
 	}
 
-	void CreateTileLocations() {
+	void CreateTileLocationsGrid() {
+		// Fill the tile locations array with all of the positions for each tile. For now this is generated in a grid fashion. Maybe it will be better to do radial-ish setup later?
+		tile_locations.Clear();
+
+		for (int x = -5; x < 5; ++x) {
+			for (int z = -10; z < 10; ++z) {
+				float x_pos = x * ((3 / 2f) * hex_width);
+
+				float z_pos = z * (hex_height / 2f) + (hex_height / 2f);
+				if (z % 2 == 0) {
+					x_pos = x_pos + ((3/4f) * hex_width);
+				}
+
+				tile_locations.Add(new Vector3(x_pos, 0.5f, z_pos));
+			}
+		}
+	}
+
+	void CreateTileLocationsHex() {
 		// Fill the tile locations array with all of the positions for each tile. For now this is generated in a grid fashion. Maybe it will be better to do radial-ish setup later?
 		tile_locations.Clear();
 

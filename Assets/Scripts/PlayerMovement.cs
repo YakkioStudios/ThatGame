@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerMovement : MonoBehaviour {
+	// A class that handles all of the player's movement
+
 
 	public float jump_power;
 	public float move_speed;
@@ -21,8 +23,8 @@ public class PlayerController : MonoBehaviour {
 
 	// Fixed update for physics
 	void FixedUpdate() {
-		HandlePlayerMovement();
 		HandlePlayerJumping();
+		HandlePlayerMovement();
 	}
 
 	void HandlePlayerMovement() {
@@ -61,20 +63,10 @@ public class PlayerController : MonoBehaviour {
 		return should_jump;
 	}
 
-	void KillPlayer() {
-		Debug.Log("You die");
-	}
-
 	void OnCollisionEnter(Collision other) {
 		// If the y component of the collision velocity is negative, then you just fell so you are no longer jumping.
 		if (other.relativeVelocity.y > 0) {
 			is_jumping = false;
-		}
-	}
-
-	void OnTriggerEnter(Collider other) {
-		if (other.CompareTag("Killing Thing")) {
-			KillPlayer();
 		}
 	}
 
