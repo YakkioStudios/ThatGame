@@ -73,7 +73,6 @@ public class BoardCreator : MonoBehaviour {
 
 				for (int r = adj_min_r; r <= adj_max_r; ++r) {
 					Vector3 pos = (q * q_vec) + (r * r_vec);
-					pos.y = Random.Range(0,3) * 0.5f;
 
 					hex_positions.Add(pos);
 				}
