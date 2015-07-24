@@ -84,15 +84,18 @@ public class BoardCreator : MonoBehaviour {
 			for (int z = board_z_min; z < board_z_max; ++z) {
 				float x_pos = x * ((3 / 2f) * hex_width);
 
-				float z_pos = z * (hex_height / 2f) + (hex_height / 2f);
+				float z_pos = z * (hex_height / 2f) - (hex_height / 2f);
 				if (z % 2 == 0) {
 					x_pos = x_pos + ((3/4f) * hex_width);
 				}
 
 				int y_pos_step = Random.Range(0, 3);
-				float y_pos = 0.5f * y_pos_step + 0.5f;
+				float y_pos = 0.5f * y_pos_step;
 
-				tile_locations.Add(new Vector3(x_pos, y_pos, z_pos));
+				if (x_pos != 0 || z_pos != 0) {
+					tile_locations.Add(new Vector3(x_pos, y_pos, z_pos));
+				}
+
 			}
 		}
 	}
