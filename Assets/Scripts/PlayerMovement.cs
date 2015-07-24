@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerMovement : MonoBehaviour {
+	// A class that handles all of the player's movement
+
 
 	public float jump_power;
 	public float move_speed;
 
 	private Rigidbody rb;
 	private bool is_jumping;
+	private Vector3 movement;
 
 	// Use this for initialization
 	void Start () {
@@ -21,19 +24,32 @@ public class PlayerController : MonoBehaviour {
 
 	// Fixed update for physics
 	void FixedUpdate() {
-		HandlePlayerMovement();
 		HandlePlayerJumping();
+		HandlePlayerMovement();
 	}
 
 	void HandlePlayerMovement() {
 		// Set the forces for horizontal (X) and the vertical (Y) axes.
-		float move_horiz = Input.GetAxis("Horizontal");
-		float move_vertical = Input.GetAxis("Vertical");
+		float move_horiz = Input.GetAxisRaw("Horizontal");
+		float move_vertical = Input.GetAxisRaw("Vertical");
 
-		Vector3 move_amount = new Vector3(move_horiz, 0, move_vertical);
-		move_amount = move_amount * move_speed;
+		Move(move_horiz, move_vertical);
+		// HandleTurning();
+	}
 
-		transform.Translate(move_amount * Time.deltaTime, Space.World);
+	void Move(float h, float v) {
+		movement.Set(h, 0f, v);
+		movement = movement.normalized * move_speed * Time.deltaTime;
+		rb.MovePosition(transform.position + movement);
+
+	}
+
+	void HandleTurning() {
+		// Check to make sure the movement vector is nonzero so that we actually need a rotation
+		if (movement != Vector3.zero){
+			Quaternion new_rot = Quaternion.LookRotation(movement);
+			rb.MoveRotation(new_rot);
+		}
 	}
 
 	// Jumping force (only call from FixedUpdate)
@@ -54,27 +70,20 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	bool ShouldJump() {
+		bool should_jump = true;
 		// See if the user wants to jump
 		bool jump_key_pressed = Input.GetKeyDown("space");
-		bool should_jump = jump_key_pressed && !is_jumping;
+
+		should_jump &= jump_key_pressed;
+		should_jump &= !is_jumping;
 
 		return should_jump;
-	}
-
-	void KillPlayer() {
-		Debug.Log("You die");
 	}
 
 	void OnCollisionEnter(Collision other) {
 		// If the y component of the collision velocity is negative, then you just fell so you are no longer jumping.
 		if (other.relativeVelocity.y > 0) {
 			is_jumping = false;
-		}
-	}
-
-	void OnTriggerEnter(Collider other) {
-		if (other.CompareTag("Killing Thing")) {
-			KillPlayer();
 		}
 	}
 
