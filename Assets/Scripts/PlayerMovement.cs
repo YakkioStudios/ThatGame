@@ -50,15 +50,18 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void Move(float h, float v) {
+		DetermineWalking(h, v);
+		Animate(1f);
+
+		movement.Set(h, 0f, v);
+		movement = movement.normalized * move_speed * Time.deltaTime;
+		rb.MovePosition(transform.position + movement);
+
+	}
+
+	void MoveCrazy(float h, float v) {
 		UpdateMovingTime(h, v);
-
-		float speed_modifier;
-		if (crazy_movement) {
-			speed_modifier = CalculateSpeedModifier();
-		} else {
-			speed_modifier = 1f;
-		}
-
+		float speed_modifier = CalculateSpeedModifier();
 		// Animate with the correct speed
 		Animate(speed_modifier);
 
@@ -68,12 +71,15 @@ public class PlayerMovement : MonoBehaviour {
 		movement = movement.normalized * move_speed * speed_modifier * Time.deltaTime;
 		rb.MovePosition(transform.position + movement);
 
+	}
 
+	void DetermineWalking(float h, float v) {
+		// Create a boolean that is true if either of the input axes is non-zero.
+		is_walking = h != 0f || v != 0f;
 	}
 
 	void UpdateMovingTime(float h, float v) {
-		// Create a boolean that is true if either of the input axes is non-zero.
-		is_walking = h != 0f || v != 0f;
+		DetermineWalking(h, v);
 		if (is_walking) {
 			time_moving += Time.deltaTime;
 			time_slowing = CalculateSpeedModifier() * time_to_slow;
