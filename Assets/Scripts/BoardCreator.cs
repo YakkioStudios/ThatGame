@@ -7,16 +7,12 @@ using Random = UnityEngine.Random;
 public class BoardCreator : MonoBehaviour {
 	// Creates a board, which is randomly generated with resources
 
-	public GameObject neutral_template;
-	public GameObject water_template;
-	public GameObject tree_template;
-	public GameObject stone_template;
+	public GameObject[] templates;
 
 	public int board_size;
 	public float hex_width;
 
-	private Transform board_holder;
-	private List<Vector3> tile_locations = new List<Vector3>();
+	private BoardManager board_manager;
 
 	[Serializable]
 	public class HexAxialGrid {
@@ -81,58 +77,32 @@ public class BoardCreator : MonoBehaviour {
 	}
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
+		board_manager = GetComponent<BoardManager>();
 		SetupBoard();
 	}
 
 	void SetupBoard() {
 		// Fill the tile locations array
-		CreateTileLocationsHex();
+		HexAxialGrid axial_grid = new HexAxialGrid(hex_width, board_size);
+		List<Vector3> positions = axial_grid.hex_positions;
 
+		CreateBoardWithPositions(positions);
+
+	}
+
+	void CreateBoardWithPositions(List<Vector3> positions) {
 		// Instantiate Board and set boardHolder to its transform.
-		board_holder = new GameObject("Board").transform;
 
-		for (int i = 0; i < tile_locations.Count; ++i) {
+		for (int i = 0; i < positions.Count; ++i) {
 			// Get a random template tile
-			GameObject tile = getRandomTile();
+			GameObject tile = templates[Random.Range(0, templates.Length)];
 			// Set it to the position from earlier
-			Vector3 pos = tile_locations[i];
+			Vector3 pos = positions[i];
 
 			if (pos.x != 0 || pos.z != 0) {
-				// Create a copy of the template and put it in the correct position
-				GameObject instance = Instantiate (tile, pos, tile.transform.rotation) as GameObject;
-
-				//Set the parent of our newly instantiated object instance to boardHolder, this is just organizational to avoid cluttering hierarchy.
-				instance.transform.SetParent (board_holder);
+				board_manager.AddTile(tile, pos);
 			}
 		}
-
-	}
-
-	void CreateTileLocationsHex() {
-		// Fill the tile locations array with all of the positions for each tile. For now this is generated in a grid fashion. Maybe it will be better to do radial-ish setup later?
-		tile_locations.Clear();
-
-		HexAxialGrid axial_grid = new HexAxialGrid(hex_width, board_size);
-		tile_locations = axial_grid.hex_positions;
-
-	}
-
-	// Eh?
-	GameObject getRandomTile() {
-		GameObject tile;
-
-		int random_num = Random.Range(0, 100);
-		if (random_num < 80) {
-			tile = neutral_template;
-		} else if (random_num < 90) {
-			tile = tree_template;
-		} else if (random_num < 95) {
-			tile = water_template;
-		} else {
-			tile = stone_template;
-		}
-
-		return tile;
 	}
 }
