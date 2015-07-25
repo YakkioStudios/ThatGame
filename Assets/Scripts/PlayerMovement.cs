@@ -4,11 +4,11 @@ using System.Collections;
 public class PlayerMovement : MonoBehaviour {
 	// A class that handles all of the player's movement
 
-
 	public float jump_power;
 	public float move_speed;
 
 	private Rigidbody rb;
+	private Animator anim;
 	private bool is_jumping;
 	private Vector3 movement;
 
@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour {
 	void Start () {
 		is_jumping = false;
 		rb = GetComponent<Rigidbody>();
+		anim = GetComponent<Animator>();
 	}
 
 	// Update is called once per frame
@@ -30,11 +31,12 @@ public class PlayerMovement : MonoBehaviour {
 
 	void HandlePlayerMovement() {
 		// Set the forces for horizontal (X) and the vertical (Y) axes.
-		float move_horiz = Input.GetAxisRaw("Horizontal");
-		float move_vertical = Input.GetAxisRaw("Vertical");
+		float move_horiz = Input.GetAxis("Horizontal");
+		float move_vertical = Input.GetAxis("Vertical");
 
 		Move(move_horiz, move_vertical);
-		// HandleTurning();
+		Animate(move_horiz, move_vertical);
+		HandleTurning();
 	}
 
 	void Move(float h, float v) {
@@ -43,6 +45,14 @@ public class PlayerMovement : MonoBehaviour {
 		rb.MovePosition(transform.position + movement);
 
 	}
+
+	void Animate (float h, float v) {
+        // Create a boolean that is true if either of the input axes is non-zero.
+        bool walking = h != 0f || v != 0f;
+
+        // Tell the animator whether or not the player is walking.
+        anim.SetBool ("isWalking", walking);
+    }
 
 	void HandleTurning() {
 		// Check to make sure the movement vector is nonzero so that we actually need a rotation

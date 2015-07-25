@@ -1,120 +1,108 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 public class BoardCreator : MonoBehaviour {
 	// Creates a board, which is randomly generated with resources
 
-	public GameObject neutral_template;
-	public GameObject water_template;
-	public GameObject tree_template;
-	public GameObject stone_template;
+	public GameObject[] templates;
 
-	public int board_width;
-	public int board_height;
-
+	public int board_size;
 	public float hex_width;
 
-	private Transform board_holder;
-	private List<Vector3> tile_locations = new List<Vector3>();
-	private float hex_height;
+	private BoardManager board_manager;
 
-	// Use this for initialization
-	void Start () {
-		// Hex dimensions hardcoded
-		// using
-		// http://www.had2know.com/academics/hexagon-measurement-calculator.html
-		hex_height = Mathf.Sqrt(3f) * hex_width / 2f;
+	[Serializable]
+	public class HexAxialGrid {
+		public List<Vector3> hex_positions = new List<Vector3>();
 
-		SetupBoard();
-	}
+		private int min_r;
+		private int max_r;
 
-	// Update is called once per frame
-	void Update () {
+		private int min_q;
+		private int max_q;
 
-	}
+		private Vector3 r_vec;
+		private Vector3 q_vec;
 
-	void SetupBoard() {
-		// Fill the tile locations array
-		CreateTileLocationsGrid();
+		public HexAxialGrid(float width, int radius) {
+			setupHexDimensions(width);
+			setupBounds(radius);
 
-		// Instantiate Board and set boardHolder to its transform.
-		board_holder = new GameObject("Board").transform;
-
-		for (int i = 0; i < tile_locations.Count; ++i) {
-			// Get a random template tile
-			GameObject tile = getRandomTile();
-			// Set it to the position from earlier
-			Vector3 pos = tile_locations[i];
-
-			// Create a copy of the template and put it in the correct position
-			GameObject instance = Instantiate (tile, pos, tile.transform.rotation) as GameObject;
-
-			//Set the parent of our newly instantiated object instance to boardHolder, this is just organizational to avoid cluttering hierarchy.
-			instance.transform.SetParent (board_holder);
+			fillMap();
 		}
 
-	}
+		void setupHexDimensions(float width){
+			float hex_width = width;
+			float hex_height = Mathf.Sqrt(3f) * width / 2f;
 
-	void CreateTileLocationsHex() {
-		// Fill the tile locations array with all of the positions for each tile. For now this is generated in a grid fashion. Maybe it will be better to do radial-ish setup later?
-		tile_locations.Clear();
-
-	}
-
-	void CreateTileLocationsGrid() {
-		// Fill the tile locations array with all of the positions for each tile. For now this is generated in a grid fashion. Maybe it will be better to do radial-ish setup later?
-		tile_locations.Clear();
-
-		int board_x_min = -board_width / 2;
-		int board_x_max = board_width / 2;
-
-		if (board_width % 2 != 0) {
-			board_x_min -= 1;
+			r_vec = new Vector3((3f/4f) * hex_width, 0, hex_height / 2f);
+			q_vec = new Vector3(0, 0, hex_height);
 		}
 
-		int board_z_min = -board_height / 2;
-		int board_z_max = board_height / 2;
+		void setupBounds(int radius){
+			min_r = -radius;
+			max_r = radius;
 
-		if (board_height % 2 != 0) {
-			board_z_min -= 1;
+			min_q = -radius;
+			max_q = radius;
 		}
 
-		for (int x = board_x_min; x < board_x_max; ++x) {
-			for (int z = board_z_min; z < board_z_max; ++z) {
-				float x_pos = x * ((3 / 2f) * hex_width);
+		void fillMap(){
+			// With help from:
+			// http://www.redblobgames.com/grids/hexagons/
+			// and
+			// http://www.redblobgames.com/grids/hexagons/#map-storage
+			hex_positions.Clear();
 
-				float z_pos = z * (hex_height / 2f) - (hex_height / 2f);
-				if (z % 2 == 0) {
-					x_pos = x_pos + ((3/4f) * hex_width);
+			for (int q = min_q; q <= max_q; ++q) {
+				// Adjust the row coordinate bounds to make a bigger hex
+				int adj_min_r = min_r;
+				int adj_max_r = max_r;
+				if (q < 0) {
+					adj_min_r -= q;
+				} else if (q > 0) {
+					adj_max_r -= q;
 				}
 
-				int y_pos_step = Random.Range(0, 3);
-				float y_pos = 0.5f * y_pos_step;
+				for (int r = adj_min_r; r <= adj_max_r; ++r) {
+					Vector3 pos = (q * q_vec) + (r * r_vec);
 
-				if (x_pos != 0 || z_pos != 0) {
-					tile_locations.Add(new Vector3(x_pos, y_pos, z_pos));
+					hex_positions.Add(pos);
 				}
-
 			}
 		}
 	}
 
-	// Eh?
-	GameObject getRandomTile() {
-		GameObject tile;
+	// Use this for initialization
+	void Awake () {
+		board_manager = GetComponent<BoardManager>();
+		SetupBoard();
+	}
 
-		int random_num = Random.Range(0, 100);
-		if (random_num < 80) {
-			tile = neutral_template;
-		} else if (random_num < 90) {
-			tile = tree_template;
-		} else if (random_num < 95) {
-			tile = water_template;
-		} else {
-			tile = stone_template;
+	void SetupBoard() {
+		// Fill the tile locations array
+		HexAxialGrid axial_grid = new HexAxialGrid(hex_width, board_size);
+		List<Vector3> positions = axial_grid.hex_positions;
+
+		CreateBoardWithPositions(positions);
+
+	}
+
+	void CreateBoardWithPositions(List<Vector3> positions) {
+		// Instantiate Board and set boardHolder to its transform.
+
+		for (int i = 0; i < positions.Count; ++i) {
+			// Get a random template tile
+			GameObject tile = templates[Random.Range(0, templates.Length)];
+			// Set it to the position from earlier
+			Vector3 pos = positions[i];
+
+			if (pos.x != 0 || pos.z != 0) {
+				board_manager.AddTile(tile, pos);
+			}
 		}
-
-		return tile;
 	}
 }
