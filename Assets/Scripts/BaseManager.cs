@@ -7,9 +7,10 @@ public class BaseManager : MonoBehaviour {
 	public GameManager game_manager;
 
 	public float health_per_tile;
+	public float repair_health;
 	public Text health_text;
 
-	private int num_tiles;
+	private int base_size;
 	private float health;
 	private float max_health;
 	private bool player_in_base;
@@ -18,7 +19,7 @@ public class BaseManager : MonoBehaviour {
 	void Start () {
 		player_in_base = true;
 
-		num_tiles = 0;
+		base_size = 0;
 		UpgradeBase();
 
 	}
@@ -33,7 +34,7 @@ public class BaseManager : MonoBehaviour {
 
 	void DamageBase() {
 		if (health > 0) {
-			float damage = 1f;
+			float damage = 2f;
 			health = health - (damage * Time.deltaTime);
 		} else {
 			game_manager.KillPlayer();
@@ -41,9 +42,14 @@ public class BaseManager : MonoBehaviour {
 	}
 
 	public void UpgradeBase() {
-		num_tiles += 1;
-		max_health = num_tiles * health_per_tile;
+		base_size += 1;
+		max_health = base_size * health_per_tile;
 		health = max_health;
+		UpdateHealthText();
+	}
+
+	public void RepairBase() {
+		health += repair_health;
 		UpdateHealthText();
 	}
 

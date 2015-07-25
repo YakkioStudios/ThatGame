@@ -8,6 +8,7 @@ public class PlayerResource : MonoBehaviour {
 	public BaseManager base_manager;
 
 	public int castle_cost;
+	public int repair_cost;
 
 	public Text resource_text;
 
@@ -23,12 +24,16 @@ public class PlayerResource : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetButtonDown("Fire1") && current_tile.CompareTag("ResourceTile")){
-
-			ConsumeResource();
-		} else if (Input.GetButtonDown("Fire2") && current_tile.CompareTag("NeutralTile")) {
-
-			BuildCastle();
+		if (Input.GetButtonDown("Fire1")){
+			if (current_tile.CompareTag("ResourceTile")){
+				ConsumeResource();
+			} else if (current_tile.CompareTag("Owned")) {
+				RepairCastle();
+			}
+		} else if (Input.GetButtonDown("Fire2")) {
+			if (current_tile.CompareTag("NeutralTile")) {
+				BuildCastle();
+			}
 		}
 	}
 
@@ -43,6 +48,14 @@ public class PlayerResource : MonoBehaviour {
 			board_manager.ReplaceWithOwned(current_tile);
 			base_manager.UpgradeBase();
 			resources -= castle_cost;
+			UpdateResourceText();
+		}
+	}
+
+	void RepairCastle() {
+		if (resources >= repair_cost) {
+			base_manager.RepairBase();
+			resources -= repair_cost;
 			UpdateResourceText();
 		}
 	}

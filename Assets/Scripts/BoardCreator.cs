@@ -11,6 +11,8 @@ public class BoardCreator : MonoBehaviour {
 
 	public int board_size;
 	public float hex_width;
+	public int height_steps;
+	public float height_per_step;
 
 	private BoardManager board_manager;
 
@@ -99,6 +101,8 @@ public class BoardCreator : MonoBehaviour {
 			GameObject tile = templates[Random.Range(0, templates.Length)];
 			// Set it to the position from earlier
 			Vector3 pos = positions[i];
+
+			pos.y = Random.Range(0, height_steps) * height_per_step;
 
 			if (pos.x != 0 || pos.z != 0) {
 				board_manager.AddTile(tile, pos);

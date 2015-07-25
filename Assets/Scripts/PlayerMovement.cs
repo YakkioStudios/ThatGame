@@ -7,13 +7,24 @@ public class PlayerMovement : MonoBehaviour {
 	public float jump_power;
 	public float move_speed;
 
+	public bool crazy_movement;
+	public float time_to_max_speed = 1f;
+	public float time_to_slow = 1f;
+
 	private Rigidbody rb;
 	private Animator anim;
 	private bool is_jumping;
+	private bool is_walking;
+	private bool is_slowing;
 	private Vector3 movement;
+
+	private float time_moving;
+	private float time_slowing;
 
 	// Use this for initialization
 	void Start () {
+		time_moving = 0f;
+		time_slowing = 0f;
 		is_jumping = false;
 		rb = GetComponent<Rigidbody>();
 		anim = GetComponent<Animator>();
@@ -35,23 +46,70 @@ public class PlayerMovement : MonoBehaviour {
 		float move_vertical = Input.GetAxis("Vertical");
 
 		Move(move_horiz, move_vertical);
-		Animate(move_horiz, move_vertical);
 		HandleTurning();
 	}
 
 	void Move(float h, float v) {
-		movement.Set(h, 0f, v);
-		movement = movement.normalized * move_speed * Time.deltaTime;
+		UpdateMovingTime(h, v);
+
+		float speed_modifier;
+		if (crazy_movement) {
+			speed_modifier = CalculateSpeedModifier();
+		} else {
+			speed_modifier = 1f;
+		}
+
+		// Animate with the correct speed
+		Animate(speed_modifier);
+
+		if (is_walking) {
+			movement.Set(h, 0f, v);
+		}
+		movement = movement.normalized * move_speed * speed_modifier * Time.deltaTime;
 		rb.MovePosition(transform.position + movement);
+
 
 	}
 
-	void Animate (float h, float v) {
-        // Create a boolean that is true if either of the input axes is non-zero.
-        bool walking = h != 0f || v != 0f;
+	void UpdateMovingTime(float h, float v) {
+		// Create a boolean that is true if either of the input axes is non-zero.
+		is_walking = h != 0f || v != 0f;
+		if (is_walking) {
+			time_moving += Time.deltaTime;
+			time_slowing = CalculateSpeedModifier() * time_to_slow;
+		} else {
+			time_moving = 0;
+			time_slowing -= Time.deltaTime;
+			time_slowing = Mathf.Max(time_slowing, 0);
+		}
+	}
 
+	float CalculateSpeedModifier() {
+		float speed_modifier = 0f;
+		if (is_walking) {
+			// The move speed changes based on how long the player has been moving
+			speed_modifier = time_moving / time_to_max_speed;
+			speed_modifier = Mathf.Min(speed_modifier, 1);
+		} else if (time_slowing != 0f) {
+			// The move speed changes based on how long the player has been slowing down
+			is_slowing = true;
+			speed_modifier = time_slowing / time_to_slow;
+			speed_modifier = Mathf.Min(speed_modifier, 1);
+		} else {
+			is_slowing = false;
+		}
+
+		return speed_modifier;
+	}
+
+	void Animate (float speed_modifier) {
         // Tell the animator whether or not the player is walking.
-        anim.SetBool ("isWalking", walking);
+		if (is_walking || is_slowing) {
+			anim.speed = speed_modifier;
+		} else {
+			anim.speed = 1f;
+		}
+        anim.SetBool ("isWalking", is_walking || is_slowing);
     }
 
 	void HandleTurning() {
